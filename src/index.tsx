@@ -3,7 +3,6 @@ import ReactDOM from "react-dom";
 import { RecoilRoot } from "recoil";
 import { ThemeProvider } from "styled-components";
 import App from "./App";
-import reportWebVitals from "./reportWebVitals";
 import { darkTheme } from "./theme";
 
 ReactDOM.render(
@@ -16,5 +15,3 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById("root")
 );
-
-reportWebVitals();
