@@ -1,24 +1,87 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 
+interface IForm {
+  email: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  password: string;
+  passwordConfirm: string;
+}
+
 const TodoList = () => {
-  // input천지 일때(e.g. 회원가입폼) 유용한 React Hook Form
+  // Input천지 일때(e.g. 회원가입폼) 유용한 React Hook Form
   // register fn: onChange 핸들러 함수 만들고, props넣기, setState 대체. 문자열을 함께 보내줘서 name을 설정해줘야한다. 띄어쓰기 없이 camelCase나 snake_case
-  // watch fn: form들의 변화를 감시(onChange 찍어줌)
-  const { register, watch } = useForm();
-  console.log(watch());
+  // watch fn: Form들의 변화를 감시(onChange 찍어줌)
+  // handleSubmit fn: 모든 validation을 마친 후 데이터가 유효할 때 handleSubmit(onValid) 함수를 호출한다.
+  // formState fn: Error 'type'을 표시해줌으로써 error handling. {value, message} object를 활용하여 메세지를 보낼 수도 있다.
+  //defaultValues: Input창을 디폴트값으로 미리 채워놓을 수 있다.
+  const {
+    register,
+    watch,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IForm>({
+    defaultValues: {
+      email: "@naver.com",
+    },
+  });
+  const onValid = (data: any) => {
+    console.log(data);
+  };
+  console.log(errors);
   return (
     <div>
-      <form>
-        <input {...register("email")} placeholder="Email" />
-        <input {...register("firstName")} placeholder="First Name" />
-        <input {...register("lastName")} placeholder="Last Name" />
-        <input {...register("username")} placeholder="Username" />
-        <input {...register("password")} placeholder="Password" />
+      <form
+        style={{ display: "flex", flexDirection: "column" }}
+        onSubmit={handleSubmit(onValid)}
+      >
+        {/* html태그 required로 진행해도 되겠지만, 유저가 의도적으로 코드를 지우거나 오래된 브라우저를 사용하는 다양한 경우를 방지하여 JS로 validation이 가능하다. */}
         <input
-          {...register("passwordConfirm")}
+          {...register("email", {
+            required: "Email required!",
+            pattern: {
+              value: /^[A-Za-z0-9._%+-]+@naver.com$/,
+              message: "Only @naver.com emails are allowed",
+            },
+          })}
+          placeholder="Email"
+        />
+        <span>{errors?.email?.message}</span>
+        <input
+          {...register("firstName", { required: "First Name required!" })}
+          placeholder="First Name"
+        />
+        <span>{errors?.firstName?.message}</span>
+        <input
+          {...register("lastName", { required: "Last Name required!" })}
+          placeholder="Last Name"
+        />
+        <span>{errors?.lastName?.message}</span>
+        <input
+          {...register("username", {
+            required: "Username required!",
+            minLength: {
+              value: 5,
+              message: "Your usename is too short!",
+            },
+          })}
+          placeholder="Username"
+        />
+        <span>{errors?.username?.message}</span>
+        <input
+          {...register("password", { required: "Password required!" })}
+          placeholder="Password"
+        />
+        <span>{errors?.password?.message}</span>
+        <input
+          {...register("passwordConfirm", {
+            required: "Password required!",
+          })}
           placeholder="Password Confirm"
         />
+        <span>{errors?.passwordConfirm?.message}</span>
         <button>Add</button>
       </form>
     </div>
