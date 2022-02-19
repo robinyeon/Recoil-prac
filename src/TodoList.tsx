@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { stableValueHash } from "react-query/types/core/utils";
 
 interface IForm {
   email: string;
@@ -8,6 +9,7 @@ interface IForm {
   username: string;
   password: string;
   passwordConfirm: string;
+  extraError?: string;
 }
 
 const TodoList = () => {
@@ -17,18 +19,28 @@ const TodoList = () => {
   // handleSubmit fn: 모든 validation을 마친 후 데이터가 유효할 때 handleSubmit(onValid) 함수를 호출한다.
   // formState fn: Error 'type'을 표시해줌으로써 error handling. {value, message} object를 활용하여 메세지를 보낼 수도 있다.
   //defaultValues: Input창을 디폴트값으로 미리 채워놓을 수 있다.
+  // setError: 특정한 에러를 발생시켜준다. 추가적인 에러가 필요하다면 항목의 이름을 새 지어주고 사용할 수  있다.
+
   const {
     register,
     watch,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm<IForm>({
     defaultValues: {
       email: "@naver.com",
     },
   });
-  const onValid = (data: any) => {
-    console.log(data);
+  const onValid = (data: IForm) => {
+    if (data.password !== data.passwordConfirm) {
+      setError(
+        "passwordConfirm",
+        { message: "Password are not the same!" },
+        { shouldFocus: true }
+      );
+    }
+    setError("extraError", { message: "Server OFFLINE!" });
   };
   console.log(errors);
   return (
@@ -50,7 +62,15 @@ const TodoList = () => {
         />
         <span>{errors?.email?.message}</span>
         <input
-          {...register("firstName", { required: "First Name required!" })}
+          {...register("firstName", {
+            required: "First Name required!",
+            validate: {
+              noDanbom: (value) =>
+                value.includes("danbom") ? "No danbom allowed!" : true,
+              noHyun: (value) =>
+                value.includes("hyun") ? "No hyun allowed!" : true,
+            },
+          })}
           placeholder="First Name"
         />
         <span>{errors?.firstName?.message}</span>
@@ -82,6 +102,7 @@ const TodoList = () => {
           placeholder="Password Confirm"
         />
         <span>{errors?.passwordConfirm?.message}</span>
+        <span>{errors?.extraError?.message}</span>
         <button>Add</button>
       </form>
     </div>
